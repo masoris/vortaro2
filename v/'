@@ -1,0 +1,114 @@
+#!/usr/bin/perl
+
+sub search_more_content($)
+{
+    my ($url) = @_;
+
+    my $tmpout = "/tmp/$$.tmp";
+
+    my $wget_cmd = "/usr/bin/wget \"http://vndic.naver.com/search.nhn?query=$word\" --output-document=$tmpout";
+
+    my $out = `$wget_cmd 2> /dev/null`;
+
+    my @lines = ();
+    local(*F);
+    if (open(F, $tmpout)) {
+        @lines = <F>;
+        close(F);
+    }
+
+    unlink($tmpout);
+
+    my $lines = trim_content(\@lines);
+
+    return $more_content;
+}
+
+sub trim_content($)
+{
+    my ($lines) = @_;
+
+    # my $result = join(//, @lines);
+
+    ##  <div class="search_entry_div section_all">
+    ##              <a nclick="exm.more" class="exampleTab section_more" href="#" onclick="return false;">예문 더보기</a>
+    ##          </div>
+    ##  <div class="section_line search_entry_div"></div>
+    ##  <div class="section_result search_entry_div">
+
+    my $result = "";
+    my $content_begin = 0;
+    my $content_end = 0;
+
+    foreach my $line (@{$lines}) {
+        if ($line =~ /srch_result /) { $content_begin = 1; next; }
+        if ($line =~ /reviewedWordsDiv aside_area/) { $content_end = 1; next; }
+        if ($line =~ /class..aside./) { $content_end = 1; next; }
+        if ($line =~ /.aside./) { $content_end = 1; next; }
+
+        if ($line =~ /search_entry_div section_all/) { $content_begin = 1; next; }
+        if ($line =~ /exampleTab section_more/) { $content_end = 1; next; }
+        if ($line =~ /section_line search_entry_div/) { $content_end = 1; next; }
+        if ($line =~ /section_result search_entry_div/) { $content_end = 1; next; }
+
+        if ($line =~ /wrd.example/) { next; }
+        if ($line =~ /btn_ex2 exbtn/) { next; }
+        if ($line =~ /lst_txt2 ex_1032724/ && $line =~ /display\:none/) { next; }
+
+        if ($line =~ /section_more entryMore/) { next; }
+        if ($line =~ /section_more meanMore/) { next; }
+        if ($line =~ /section_more exampleMore/) { next; }
+        if ($line =~ /dn-naverdic.ktics.co.kr/) { next; }
+
+        $line =~ s/<a href/<Xa href/g;
+
+        if ($content_begin && ! $content_end) {
+            $result .= $line; 
+        }
+    }
+
+    return $result;
+}
+
+sub search_vndic_naver_com($)
+{
+    my ($word) = @_;
+
+# print "word: $word\n";
+
+    my $tmpout = "/tmp/$$.out";
+
+    # http://vndic.naver.com/entry.nhn?sLn=kr&entryId=1037336&query=한글" --output-document=/tmp/xx.out
+    # my $wget_cmd = "/usr/bin/wget \"http://vndic.naver.com/entry.nhn?sLn=kr&query=$word\" --output-document=$tmpout";
+
+    my $wget_cmd = "/usr/bin/wget \"http://vndic.naver.com/search.nhn?query=$word\" --output-document=$tmpout";
+
+    my $out = `$wget_cmd 2> /dev/null`;
+
+    my @lines = ();
+    local(*F);
+    if (open(F, $tmpout)) {
+        @lines = <F>;
+        close(F);
+    }
+
+    unlink($tmpout);
+
+    my $result = trim_content(\@lines);
+
+    return $result;
+}
+
+MAIN:
+{
+    if (! @ARGV) {
+        print "Usage: $0 word\n";
+        exit(0);
+    }
+
+    my $word = $ARGV[0];
+
+    my $result = search_vndic_naver_com($word);
+
+    print $result;
+}

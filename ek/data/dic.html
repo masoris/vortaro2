@@ -1,0 +1,16 @@
+<html>
+<META HTTP-EQUIV="Content-Type" CONTENT="text/html; charset=utf-8">;
+<head>
+<script src=./dic.js></script>
+<script>
+function E(id) { return document.getElementById(id); }
+window.onload = function() {
+    localStorage["dic3"] = dic;
+    E("display").innerHTML = "loaded.";
+}
+</script>
+</head>
+<body>
+<span id=display>test</span>
+</body>
+</html>

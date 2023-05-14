@@ -1,0 +1,16 @@
+<?php
+header("Location: https://www.esperanto.or.kr/vortaro/ex");
+?>
+<!DOCTYPE HTML>
+<html manifest="./manifest.appcache">
+<!--html manifest="./manifest.php"-->
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=1" />
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<title>Esperanto Vortaro</title>
+<meta name="keywords" content="Esperanto, Vortaro, 사전">
+</head>
+<frameset> <frame src=/vortaro/ex/> </frameset>
+<body> </body>
+</HTML>
